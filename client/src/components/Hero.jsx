@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import SocialLinks from './SocialLinks';
 
-const roles = ['MERN Stack Developer💻''Full Stack Developer 💻', 'Problem Solver'];
+const roles = ['MERN Stack Developer 💻', 'Full Stack Developer', 'Problem Solver'];
 
-// Home page ki photo yahan se badal sakte ho
+// Home page ki photo (file client/public/ folder mein honi chahiye)
 const HOME_PHOTO = '/home-photo.jpg';
 
 function Counter({ target }) {
