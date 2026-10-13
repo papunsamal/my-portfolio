@@ -1,13 +1,14 @@
 function About() {
   const skills = [
+    { name: 'Html,Css', icon: '☕' },
+    { name: 'JavaScript', icon: '☕' },
     { name: 'React', icon: '⚛️' },
     { name: 'Node.js', icon: '🟢' },
     { name: 'Python', icon: '🐍' },
-    { name: 'Java', icon: '☕' },
     { name: 'MongoDB', icon: '🍃' },
     { name: 'SQL', icon: '🗄️' },
     { name: 'Git', icon: '🔧' },
-    { name: 'AWS', icon: '☁️' },
+    { name: 'cloudinary', icon: '☁️' },
   ];
 
   return (
@@ -21,9 +22,11 @@ function About() {
       <div className="about-content">
         <div className="about-text">
           <p>
-            I'm a Computer Science student at GEC Autonomous, passionate about building full-stack
-            applications and solving complex problems. With a strong foundation in DSA, I love
-            turning ideas into production-ready software.
+            I am a 3rd-year Computer Science Engineering student at GEC Autonomous College,
+            Bhubaneswar, and an aspiring MERN Stack Developer skilled in React.js, Node.js,
+            Express.js, and MongoDB. I enjoy building real-world projects, exploring AI prompting,
+            and continuously improving my development skills. I am open to opportunities to learn,
+            grow, and contribute to innovative projects.
           </p>
           <p>
             I thrive in collaborative environments and always look to learn new technologies. My

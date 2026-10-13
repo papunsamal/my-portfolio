@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import SocialLinks from './SocialLinks';
 
-const roles = ['Full Stack Developer 💻', 'MERN Stack Developer', 'Problem Solver'];
+const roles = ['MERN Stack Developer💻''Full Stack Developer 💻', 'Problem Solver'];
 
 // Home page ki photo yahan se badal sakte ho
 const HOME_PHOTO = '/home-photo.jpg';
