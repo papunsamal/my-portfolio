@@ -1,0 +1,835 @@
+/* =========================================================================
+   premium.css: cinematic 3D layer
+   Loaded after index.css (see main.jsx). It only adds / overrides; the base
+   rules and colour tokens live in index.css.
+   ========================================================================= */
+
+/* ---------- utilities ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* fixed colour atmosphere behind everything */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 600px at 85% -5%,
+      rgba(139, 92, 246, 0.16),
+      transparent 62%
+    ),
+    radial-gradient(
+      800px 600px at -5% 35%,
+      rgba(34, 229, 255, 0.09),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 700px at 60% 110%,
+      rgba(59, 130, 246, 0.1),
+      transparent 60%
+    );
+}
+
+/* ---------- scroll progress ---------- */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 300;
+  pointer-events: none;
+}
+
+.scroll-progress span {
+  display: block;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: var(--grad);
+  box-shadow: 0 0 12px rgba(34, 229, 255, 0.7);
+}
+
+/* ---------- navbar: dark glass ---------- */
+.navbar {
+  background: rgba(4, 7, 16, 0.45);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--hairline);
+  transition:
+    background 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.navbar.is-scrolled {
+  background: rgba(4, 7, 16, 0.8);
+  border-bottom-color: var(--line);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+}
+
+.nav-links a {
+  letter-spacing: 0.08em;
+}
+
+/* ---------- buttons ---------- */
+.btn-primary,
+.btn-secondary {
+  border-radius: 10px;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 28px rgba(34, 229, 255, 0.55);
+}
+
+.btn-secondary {
+  background: rgba(10, 16, 32, 0.5);
+  border-color: var(--line-strong);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.social-links a {
+  background: rgba(10, 16, 32, 0.5);
+  border-color: var(--line-strong);
+}
+
+/* ---------- hero: full-bleed 3D stage ---------- */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* keeps the headline readable over the scene */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(4, 7, 16, 0.88) 0%,
+    rgba(4, 7, 16, 0.6) 36%,
+    rgba(4, 7, 16, 0) 62%
+  );
+}
+
+.hero-left {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+}
+
+.hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.stage-canvas-wrap {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  touch-action: pan-y;
+}
+
+.stage-canvas-wrap.is-ready {
+  opacity: 1;
+}
+
+/* original 2D photo: shown until the 3D scene is ready, or when 3D is unavailable */
+.stage-fallback {
+  position: absolute;
+  top: 50%;
+  right: 9%;
+  transform: translateY(-50%);
+  transition:
+    opacity 0.8s,
+    visibility 0s;
+}
+
+.stage-fallback.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.8s,
+    visibility 0s 0.8s;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(10, 16, 32, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0 rgba(25, 245, 168, 0.6);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  70% {
+    box-shadow: 0 0 0 10px rgba(25, 245, 168, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(25, 245, 168, 0);
+  }
+}
+
+.hero-name {
+  font-size: clamp(44px, 7vw, 100px);
+  line-height: 0.98;
+}
+
+/* each name line is masked so GSAP can slide it up */
+.hero-name .line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.hero-name .line > span {
+  display: inline-block;
+}
+
+/* technology chips: moved every frame by TechOrbit (transform is set from JS) */
+.tech-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tech-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-family: "Space Mono", monospace;
+  font-size: 15px;
+  color: var(--text);
+  white-space: nowrap;
+  user-select: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 229, 255, 0.14),
+    rgba(139, 92, 246, 0.1)
+  );
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.tech-panel svg {
+  font-size: 20px;
+}
+
+.tech-panel.compact {
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.tech-panel.compact span {
+  display: none;
+}
+
+/* ---------- sections ---------- */
+.section {
+  position: relative;
+  border-top: none;
+  overflow-x: clip; /* the rotating photo rings must never widen the page */
+}
+
+.section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 60px;
+  right: 60px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--line-strong),
+    transparent
+  );
+}
+
+.section-tag,
+.section-title,
+.about-content,
+.skills-grid,
+.filter-bar,
+.projects-grid,
+.timeline,
+.contact-form {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- glass cards ---------- */
+.card {
+  background: linear-gradient(
+    160deg,
+    rgba(14, 22, 44, 0.62),
+    rgba(8, 12, 26, 0.5)
+  );
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+  box-shadow:
+    0 14px 50px rgba(0, 0, 0, 0.45),
+    0 0 30px rgba(34, 229, 255, 0.12);
+}
+
+/* ---------- 3D tilt + glare (TiltCard) ---------- */
+.tilt {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.tilt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    420px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.09),
+    transparent 45%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tilt:hover::after {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .tilt {
+    transform: none;
+  }
+  .tilt::after {
+    display: none;
+  }
+}
+
+/* ---------- about ---------- */
+.about-text {
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(10, 16, 32, 0.5);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.about-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+  list-style: none;
+}
+
+.about-facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.about-facts svg {
+  color: var(--cyan);
+}
+
+.about-3d {
+  position: absolute;
+  top: 70px;
+  right: 60px;
+  width: 240px;
+  height: 240px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.skill-tag {
+  background: rgba(10, 16, 32, 0.45);
+  border-color: var(--line);
+}
+
+/* ---------- skills ---------- */
+.bar-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar-name svg {
+  color: var(--cyan);
+  font-size: 16px;
+}
+
+.bar-bg {
+  background: rgba(120, 160, 255, 0.14);
+}
+
+.bar-fill {
+  box-shadow: 0 0 10px rgba(34, 229, 255, 0.5);
+}
+
+/* ---------- projects ---------- */
+.filter-btn {
+  border-color: var(--line);
+  border-radius: 999px;
+  color: var(--text-dim);
+}
+
+.filter-btn.active {
+  background: rgba(34, 229, 255, 0.14);
+  color: var(--cyan);
+  border-color: var(--cyan);
+  box-shadow: 0 0 18px rgba(34, 229, 255, 0.25);
+}
+
+.project-card {
+  height: 100%;
+  overflow: hidden;
+}
+
+.project-thumb-wrap {
+  aspect-ratio: 16 / 10;
+  margin-bottom: 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #000;
+}
+
+.project-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  object-fit: cover;
+  object-position: top;
+  transition: transform 0.6s ease;
+}
+
+.project-card:hover .project-thumb {
+  transform: scale(1.04);
+}
+
+.project-tech span {
+  color: var(--text);
+  border-color: var(--line);
+  background: rgba(34, 229, 255, 0.06);
+}
+
+.view-details {
+  padding: 0;
+  font: inherit;
+  font-size: 14px;
+  color: var(--blue-soft);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.view-details:hover {
+  color: var(--cyan);
+}
+
+/* animated lighting border, only runs while the card is hovered / focused */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.project-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--angle),
+    transparent 0 55%,
+    var(--cyan) 78%,
+    var(--purple) 92%,
+    transparent 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 0.4s;
+  animation: border-spin 5s linear infinite paused;
+}
+
+.project-card:hover::before,
+.project-card:focus-within::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+@keyframes border-spin {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* ---------- project popup ---------- */
+.modal-overlay {
+  background: rgba(2, 4, 10, 0.82);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.modal {
+  background: linear-gradient(
+    160deg,
+    rgba(14, 22, 44, 0.97),
+    rgba(6, 10, 22, 0.98)
+  );
+  border: 1px solid var(--line-strong);
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.7),
+    0 0 60px rgba(34, 229, 255, 0.08);
+}
+
+/* ---------- education timeline ---------- */
+.timeline {
+  border-left: none;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--cyan), var(--purple));
+  box-shadow: 0 0 12px rgba(34, 229, 255, 0.5);
+  transform-origin: top;
+}
+
+.timeline-dot {
+  display: grid;
+  place-items: center;
+  left: -51px;
+  top: 18px;
+  width: 34px;
+  height: 34px;
+  font-size: 15px;
+  color: var(--cyan);
+  background: var(--bg);
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 16px rgba(34, 229, 255, 0.45);
+}
+
+/* ---------- contact ---------- */
+.contact-orb {
+  position: absolute;
+  top: 70px;
+  right: 90px;
+  width: 150px;
+  height: 150px;
+  perspective: 700px;
+  pointer-events: none;
+}
+
+.orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px dashed rgba(139, 92, 246, 0.5);
+  animation: spin 24s linear infinite;
+}
+
+.orb-cube {
+  position: absolute;
+  inset: 35px;
+  transform-style: preserve-3d;
+  animation: cube-spin 18s linear infinite;
+}
+
+.orb-cube i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(34, 229, 255, 0.55);
+  background: rgba(34, 229, 255, 0.04);
+  box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+.orb-cube i:nth-child(1) {
+  transform: translateZ(40px);
+}
+.orb-cube i:nth-child(2) {
+  transform: rotateY(180deg) translateZ(40px);
+}
+.orb-cube i:nth-child(3) {
+  transform: rotateY(90deg) translateZ(40px);
+}
+.orb-cube i:nth-child(4) {
+  transform: rotateY(-90deg) translateZ(40px);
+}
+.orb-cube i:nth-child(5) {
+  transform: rotateX(90deg) translateZ(40px);
+}
+.orb-cube i:nth-child(6) {
+  transform: rotateX(-90deg) translateZ(40px);
+}
+
+@keyframes cube-spin {
+  from {
+    transform: rotateX(-20deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(-20deg) rotateY(360deg);
+  }
+}
+
+.contact-form {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(10, 16, 32, 0.5);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.contact-form input,
+.contact-form textarea {
+  color: var(--text);
+  background: rgba(4, 7, 16, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: #7d8bab;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: var(--cyan);
+  box-shadow:
+    0 0 0 3px rgba(34, 229, 255, 0.15),
+    0 0 24px rgba(34, 229, 255, 0.15);
+}
+
+.form-status:empty {
+  display: none;
+}
+
+.form-status.is-success {
+  color: var(--green);
+}
+
+.form-status.is-error {
+  color: #ff7a90;
+}
+
+/* ---------- footer ---------- */
+.footer {
+  position: relative;
+  z-index: 1;
+  background: rgba(4, 7, 16, 0.55);
+  border-top: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* =========================================================================
+   Tablet
+   ========================================================================= */
+@media (max-width: 1000px) {
+  .section::before {
+    left: 30px;
+    right: 30px;
+  }
+
+  .about-3d {
+    top: 70px;
+    right: 30px;
+    width: 160px;
+    height: 160px;
+  }
+
+  .contact-orb {
+    right: 40px;
+    transform: scale(0.8);
+    transform-origin: top right;
+  }
+}
+
+/* =========================================================================
+   Mobile: scene sits above the text instead of behind it
+   ========================================================================= */
+@media (max-width: 800px) {
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 0 20px 56px;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    display: none;
+  }
+
+  .hero-stage {
+    position: relative;
+    inset: auto;
+    flex-shrink: 0;
+    height: min(88vw, 380px);
+    margin: 0 -20px;
+  }
+
+  .stage-fallback {
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: none;
+  }
+
+  .hero-left {
+    max-width: none;
+    padding-top: 8px;
+  }
+
+  .section::before {
+    left: 20px;
+    right: 20px;
+  }
+
+  .about-text {
+    padding: 22px;
+  }
+
+  .contact-orb {
+    top: 28px;
+    right: 18px;
+    transform: scale(0.5);
+  }
+
+  .contact-form {
+    padding: 20px;
+  }
+
+  .timeline-dot {
+    left: -41px;
+  }
+
+  .tech-panel {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+/* =========================================================================
+   Reduced motion: no looping animation, no smooth scroll
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

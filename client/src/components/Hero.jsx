@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import SocialLinks from './SocialLinks';
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { gsap, ScrollTrigger } from "../lib/gsap";
+import { usePrefersReducedMotion } from "../hooks/useMediaQuery";
+import SocialLinks from "./SocialLinks";
+import Hero3D from "./Hero3D";
 
-const roles = ['MERN Stack Developer 💻', 'Full Stack Developer', 'Problem Solver'];
-
-// Home page ki photo (file client/public/ folder mein honi chahiye)
-const HOME_PHOTO = '/home-photo.jpg';
+const roles = [
+  "MERN Stack Developer 💻",
+  "Full Stack Developer",
+  "Problem Solver",
+];
 
 function Counter({ target }) {
   const [count, setCount] = useState(0);
@@ -27,24 +30,25 @@ function Counter({ target }) {
   return <>{count}+</>;
 }
 
-function Hero() {
+// Typing effect. Works on whole characters (so the emoji is never cut in half).
+function useTypedRole(reduced) {
   const [roleIndex, setRoleIndex] = useState(0);
-  const [text, setText] = useState('');
+  const [count, setCount] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    const full = roles[roleIndex];
+    if (reduced) return undefined;
+    const chars = Array.from(roles[roleIndex]);
     const speed = deleting ? 40 : 90;
 
     const timer = setTimeout(() => {
       if (!deleting) {
-        setText(full.slice(0, text.length + 1));
-        if (text.length + 1 === full.length) {
+        setCount(count + 1);
+        if (count + 1 === chars.length)
           setTimeout(() => setDeleting(true), 1500);
-        }
       } else {
-        setText(full.slice(0, text.length - 1));
-        if (text.length - 1 === 0) {
+        setCount(count - 1);
+        if (count - 1 === 0) {
           setDeleting(false);
           setRoleIndex((roleIndex + 1) % roles.length);
         }
@@ -52,41 +56,110 @@ function Hero() {
     }, speed);
 
     return () => clearTimeout(timer);
-  }, [text, deleting, roleIndex]);
+  }, [count, deleting, roleIndex, reduced]);
+
+  return reduced
+    ? roles[0]
+    : Array.from(roles[roleIndex]).slice(0, count).join("");
+}
+
+function Hero() {
+  const reduced = usePrefersReducedMotion();
+  const text = useTypedRole(reduced);
+  const rootRef = useRef(null);
+  // 0 -> 1 while the hero scrolls out of view. Read every frame by the 3D camera.
+  const progressRef = useRef({ value: 0 });
+
+  // GSAP: entrance timeline + scroll-linked fade. (All other sections use Framer Motion.)
+  useLayoutEffect(() => {
+    if (reduced) return undefined;
+    const progress = progressRef.current;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        delay: 0.8,
+        defaults: { ease: "power3.out" },
+      });
+      tl.from(".hero-tag", { y: 24, opacity: 0, duration: 0.6 })
+        .from(
+          ".hero-name .line > span",
+          { yPercent: 115, duration: 1, stagger: 0.12 },
+          "-=0.3",
+        )
+        .from(
+          ".hero-role, .hero-buttons, .hero-left .social-links",
+          { y: 28, opacity: 0, duration: 0.7, stagger: 0.1 },
+          "-=0.6",
+        )
+        .from(
+          ".hero-stats > div",
+          { y: 24, opacity: 0, duration: 0.6, stagger: 0.1 },
+          "-=0.4",
+        );
+
+      gsap.to(".hero-stage", {
+        opacity: 0.12,
+        ease: "none",
+        scrollTrigger: {
+          trigger: rootRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          onUpdate: (self) => {
+            progress.value = self.progress;
+          },
+        },
+      });
+
+      gsap.to(".hero-left", {
+        y: -50,
+        ease: "none",
+        scrollTrigger: {
+          trigger: rootRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    }, rootRef);
+
+    return () => {
+      ctx.revert();
+      progress.value = 0;
+      ScrollTrigger.refresh();
+    };
+  }, [reduced]);
 
   return (
-    <section id="home" className="hero">
+    <section id="home" className="hero" ref={rootRef}>
+      <Hero3D progressRef={progressRef} />
+
       <div className="hero-left">
-        <motion.p
-          className="hero-tag"
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          &gt; AVAILABLE FOR OPPORTUNITIES
-        </motion.p>
-
-        <motion.h1
-          className="hero-name"
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          Papun <br />
-          <span className="highlight">Samal</span>
-        </motion.h1>
-
-        <p className="hero-role">
-          {text}
-          <span className="cursor">|</span>
+        <p className="hero-tag">
+          <span className="status-dot" aria-hidden="true"></span>
+          Available for opportunities
         </p>
 
-        <motion.div
-          className="hero-buttons"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
+        <h1 className="hero-name">
+          <span className="line">
+            <span>Papun</span>
+          </span>
+          <span className="line">
+            <span className="highlight">Samal</span>
+          </span>
+        </h1>
+
+        <p className="hero-role">
+          <span className="sr-only">
+            MERN Stack Developer, Full Stack Developer, Problem Solver
+          </span>
+          <span aria-hidden="true">
+            {text}
+            {!reduced && <span className="cursor">|</span>}
+          </span>
+        </p>
+
+        <div className="hero-buttons">
           <a href="#projects" className="btn-primary">
             → View Projects
           </a>
@@ -96,7 +169,7 @@ function Hero() {
           <a href="/resume.pdf" download className="btn-secondary">
             ⬇ Resume
           </a>
-        </motion.div>
+        </div>
 
         <SocialLinks />
 
@@ -121,22 +194,6 @@ function Hero() {
           </div>
         </div>
       </div>
-
-      <motion.div
-        className="hero-right"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.9, delay: 0.4 }}
-      >
-        <div className="photo-wrap">
-          <div className="ring ring-1"></div>
-          <div className="ring ring-2"></div>
-          <div className="orbit">
-            <span className="orbit-dot"></span>
-          </div>
-          <img src={HOME_PHOTO} alt="Papun Samal" width="320" height="320" />
-        </div>
-      </motion.div>
     </section>
   );
 }

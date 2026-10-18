@@ -1,13 +1,15 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 function ParticleBackground() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     const isMobile = window.innerWidth < 800;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     const COUNT = reduceMotion ? 0 : isMobile ? 25 : 70;
     const LINK_DIST = isMobile ? 100 : 130;
@@ -22,13 +24,13 @@ function ParticleBackground() {
       canvas.height = window.innerHeight;
     };
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
-    const onMove = e => {
+    const onMove = (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     };
-    if (!isMobile) window.addEventListener('mousemove', onMove);
+    if (!isMobile) window.addEventListener("mousemove", onMove);
 
     for (let i = 0; i < COUNT; i++) {
       particles.push({
@@ -53,7 +55,7 @@ function ParticleBackground() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(46, 230, 168, 0.6)';
+        ctx.fillStyle = "rgba(34, 229, 255, 0.55)";
         ctx.fill();
 
         for (let j = i + 1; j < particles.length; j++) {
@@ -64,7 +66,7 @@ function ParticleBackground() {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(46, 230, 168, ${0.15 * (1 - dist / LINK_DIST)})`;
+            ctx.strokeStyle = `rgba(34, 229, 255, ${0.14 * (1 - dist / LINK_DIST)})`;
             ctx.stroke();
           }
         }
@@ -77,7 +79,7 @@ function ParticleBackground() {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = `rgba(28, 200, 255, ${0.3 * (1 - md / 160)})`;
+            ctx.strokeStyle = `rgba(139, 92, 246, ${0.3 * (1 - md / 160)})`;
             ctx.stroke();
           }
         }
@@ -96,16 +98,16 @@ function ParticleBackground() {
         animate();
       }
     };
-    document.addEventListener('visibilitychange', onVisibility);
+    document.addEventListener("visibilitychange", onVisibility);
 
     animate();
 
     return () => {
       running = false;
       cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', onMove);
-      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 

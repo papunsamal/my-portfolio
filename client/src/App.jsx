@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import About from './components/About';
-import Skills from './components/Skills';
-import Projects from './components/Projects';
-import Education from './components/Education';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
-import ParticleBackground from './components/ParticleBackground';
-import Preloader from './components/Preloader';
-import Reveal from './components/Reveal';
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import About from "./components/About";
+import Skills from "./components/Skills";
+import Projects from "./components/Projects";
+import Education from "./components/Education";
+import Contact from "./components/Contact";
+import Footer from "./components/Footer";
+import ParticleBackground from "./components/ParticleBackground";
+import Preloader from "./components/Preloader";
+import Reveal from "./components/Reveal";
+import ScrollProgress from "./components/ScrollProgress";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,7 @@ function App() {
     <>
       <AnimatePresence>{loading && <Preloader />}</AnimatePresence>
 
+      <ScrollProgress />
       <ParticleBackground />
 
       <div className="content">

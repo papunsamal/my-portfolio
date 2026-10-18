@@ -1,13 +1,13 @@
-# Papun Samal | MERN Stack Portfolio
+# Papun Samal | 3D MERN Stack Portfolio
 
-A single-page, animated, mobile-responsive developer portfolio built with the **MERN stack** (MongoDB, Express, React, Node.js).
-Dark cyberpunk theme with a particle background, typing effect, rotating photo rings, scroll-spy navigation, and a project detail popup with screenshot slider.
+A single-page, mobile-responsive developer portfolio built with the **MERN stack** (MongoDB, Express, React, Node.js) and a real-time **3D hero** (Three.js + React Three Fiber).
+Dark navy theme with neon cyan, blue and purple lighting, glassmorphism panels, a glowing portal around the profile photo, floating crystals, orbiting technology chips, scroll-spy navigation, and a project detail popup with a screenshot slider.
 The contact form saves messages to MongoDB and sends an email notification.
 
 - **Owner:** Papun Samal
 - **GitHub:** https://github.com/papunsamal
 - **LinkedIn:** https://www.linkedin.com/in/papunsamal/
-- **Live Demo:** https://orivana-restaurant.vercel.app/
+- **Live Demo:** _add the deployed portfolio link here_
 
 ---
 
@@ -16,38 +16,51 @@ The contact form saves messages to MongoDB and sends an email notification.
 | Item | Value |
 |---|---|
 | Type | Full-stack portfolio website (single page, scroll based) |
-| Frontend | React (Vite), plain CSS, Framer Motion, Axios, React Icons |
+| Frontend | React 19 (Vite), plain CSS, Three.js, React Three Fiber, Drei, GSAP, Framer Motion, Axios, React Icons |
 | Backend | Node.js, Express, Mongoose, Nodemailer, CORS, dotenv |
 | Database | MongoDB Atlas (database name: `portfolio`) |
 | Routing | **No React Router.** One page with anchor links (`#home`, `#about`, ...) |
-| Styling | One global file: `client/src/index.css` (no Tailwind) |
+| Styling | `client/src/index.css` (base + colour tokens) and `client/src/premium.css` (3D and glass layer). No Tailwind |
 | Frontend dev port | `5173` (Vite) |
 | Backend dev port | `5000` (Express) |
-| Language | JavaScript (components use `.jsx`, server files use `.js`) |
+| Language | JavaScript (components use `.jsx`, other files `.js`) |
 | Module system | Frontend: ES Modules (`import`). Backend: CommonJS (`require`) |
 | Project data source | MongoDB `projects` collection, filled by `server/seed.js` |
+| 3D loading | three.js is a separate lazy chunk; the 2D photo with rings is the fallback |
 
 ---
 
 ## Features
 
+**3D and animation**
+- Cinematic 3D hero: glowing portal with the profile photo and holographic scanlines, rotating rings, floating glass crystals, particle starfield, and React / Node.js / Express.js / MongoDB chips orbiting the portal
+- Mouse parallax (camera and portal tilt) and a scroll-linked pull-back and fade of the scene
+- GSAP entrance timeline for the hero text and a scroll progress bar at the top
+- Small interactive 3D developer object in the About section (desktop only)
+- 3D tilt cards with glare and an animated lighting border for projects and skills
+- Scroll reveal animations (Framer Motion), animated skill bars, animated education timeline
+
+**Content and functionality**
 - Preloader screen on first load
-- Hero section: typing effect, animated stat counters, social icons, resume download, profile photo with rotating rings
-- Interactive particle network canvas background (fewer particles on mobile, pauses when the tab is hidden)
-- Scroll-spy navbar (active link updates while scrolling, animated underline, mobile hamburger menu)
-- About, Skills (progress bars), Education timeline
-- **Projects** loaded from MongoDB with tech filter buttons and 3D tilt cards
-- **Project detail popup:** click a card to see a screenshot slider, key features, tech stack, and links (closes with the X button, outside click, or the Escape key)
+- Hero: typing effect, animated stat counters, social icons, resume download
+- Scroll-spy navbar (dark glass, active link, mobile hamburger menu)
+- About, Skills (progress bars with technology icons), Education timeline
+- **Projects** loaded from MongoDB with tech filter buttons
+- **Project detail popup:** screenshot slider, key features, tech stack and links (closes with the X button, outside click or Escape; arrow keys change the screenshot)
 - **Private project support:** projects with a private repository show a "Private" badge and a live demo link instead of a GitHub link
 - Contact form: validates input, saves to MongoDB, emails the owner
-- Fully responsive (tablet and mobile breakpoints)
-- Scroll reveal animations (Framer Motion)
+
+**Quality**
+- Fully responsive (tablet and phone breakpoints, no horizontal overflow)
+- Falls back to the 2D photo when WebGL is unavailable or the scene fails
+- Respects `prefers-reduced-motion` (no idle animation, typing, GSAP motion or tilt)
+- Keyboard accessible (focus rings, labelled dialog, focus returns after closing the popup)
 
 ---
 
 ## Tech Stack
 
-**Frontend:** `react`, `react-dom`, `vite`, `framer-motion`, `axios`, `react-icons`
+**Frontend:** `react`, `react-dom`, `vite`, `three`, `@react-three/fiber`, `@react-three/drei`, `gsap`, `framer-motion`, `axios`, `react-icons`
 **Backend:** `express`, `mongoose`, `cors`, `dotenv`, `nodemailer`, `nodemon` (dev)
 **Fonts (Google Fonts):** Space Mono (body), Syne (headings)
 
@@ -63,30 +76,56 @@ My-Portfolio-Project/
 │   ├── index.html                   # Loads Google Fonts, root div
 │   ├── package.json
 │   ├── public/
-│   │   ├── profile.jpg              # About section photo
-│   │   ├── home-photo.jpg           # Hero (home) section photo
+│   │   ├── profile.jpeg             # About section photo
+│   │   ├── home-photo.jpg           # Hero photo for the 2D fallback
+│   │   ├── home-photo-3d.jpg        # SQUARE crop used as the 3D portal texture
 │   │   ├── resume.pdf               # Resume download target
 │   │   └── projects/                # Project screenshots (e.g. orivana-1.webp)
 │   └── src/
-│       ├── main.jsx                 # React entry point
+│       ├── main.jsx                 # Entry point (imports index.css, then premium.css)
 │       ├── App.jsx                  # Composes all sections
-│       ├── index.css                # ALL styles (global, responsive)
+│       ├── index.css                # Base styles + colour tokens (:root)
+│       ├── premium.css              # 3D stage, glass UI, tilt, popup, responsive, reduced motion
+│       ├── lib/
+│       │   ├── gsap.js              # Registers GSAP + ScrollTrigger once
+│       │   └── webgl.js             # WebGL support check
+│       ├── hooks/
+│       │   ├── useMediaQuery.js     # useIsMobile, usePrefersReducedMotion
+│       │   ├── useInView.js         # Pauses 3D rendering while off-screen
+│       │   └── usePointer.js        # Shared normalised mouse position for 3D scenes
 │       ├── data/
-│       │   └── socials.js           # GitHub, LinkedIn, email links (edit here)
+│       │   ├── socials.js           # GitHub, LinkedIn, email links (edit here)
+│       │   └── techIcons.js         # Skill name -> icon
 │       └── components/
-│           ├── Navbar.jsx           # Sticky nav, scroll-spy, hamburger
-│           ├── Hero.jsx             # Home section, typing effect, counters, photo
-│           ├── About.jsx            # About text, skill tags, photo
-│           ├── Skills.jsx           # Skill categories with progress bars
-│           ├── Projects.jsx         # Fetches /api/projects, filter, tilt, detail popup
-│           ├── TiltCard.jsx         # 3D tilt wrapper for project cards
-│           ├── Education.jsx        # Timeline
+│           ├── Navbar.jsx           # Glass nav, scroll-spy, hamburger
+│           ├── Hero.jsx             # GSAP timeline, typing effect, counters
+│           ├── Hero3D.jsx           # 3D stage wrapper, 2D fallback, tech chips layer
+│           ├── About.jsx            # About text, fact chips, skill tags, photo
+│           ├── About3D.jsx          # Lazy 3D developer object (desktop only)
+│           ├── Skills.jsx           # Skill cards with icons and animated bars
+│           ├── Projects.jsx         # Fetches /api/projects, filter, detail popup
+│           ├── ProjectCard3D.jsx    # One project card (thumbnail, badges, links)
+│           ├── TiltCard.jsx         # Pointer tilt + glare via CSS variables
+│           ├── Education.jsx        # Animated timeline
 │           ├── Contact.jsx          # Contact form (POST /api/contact)
 │           ├── Footer.jsx           # Footer with social links
 │           ├── SocialLinks.jsx      # Round GitHub/LinkedIn/Email icons
-│           ├── ParticleBackground.jsx  # Canvas particle animation
+│           ├── ScrollProgress.jsx   # Top progress bar (GSAP scrub)
+│           ├── ParticleBackground.jsx  # 2D canvas particles behind the page
 │           ├── Preloader.jsx        # Loading screen
-│           └── Reveal.jsx           # Scroll-reveal wrapper (Framer Motion)
+│           ├── Reveal.jsx           # Scroll-reveal wrapper (Framer Motion)
+│           └── three/               # Everything that uses three.js
+│               ├── Scene3D.jsx      # Canvas, lights, fog, camera rig, layout of the scene
+│               ├── Portal.jsx       # Photo disc, scanlines, rings, halos
+│               ├── FloatingObjects.jsx  # Glass crystals with wire edges
+│               ├── TechOrbit.jsx    # Orbit anchors, moves the DOM tech chips
+│               ├── orbitTech.js     # List of technologies on the orbit
+│               ├── Starfield.jsx    # Particle stars
+│               ├── StudioEnv.jsx    # Procedural reflections (no HDR download)
+│               ├── DevCoreScene.jsx # Small 3D object for the About section
+│               ├── SceneBoundary.jsx    # Error boundary -> fallback
+│               ├── SceneContext.js  # reduced-motion / mobile flags
+│               └── textures.js      # Generated textures + disposal hook
 └── server/                          # Express backend
     ├── package.json
     ├── index.js                     # App entry: DB, email, routes
@@ -105,6 +144,7 @@ My-Portfolio-Project/
 - Node.js 18 or newer
 - A free MongoDB Atlas account (https://www.mongodb.com/atlas)
 - A Gmail account with 2-Step Verification enabled (for contact email notifications in local development)
+- A browser with WebGL (every current browser). Without WebGL the site still works with the 2D photo.
 
 ---
 
@@ -145,7 +185,7 @@ Notes:
 ### 3. Add projects and seed the database
 
 1. Put project screenshots in `client/public/projects/` (WebP recommended, about 1200px wide).
-2. Edit `server/seed.js` with real project data (see "Project data format" below).
+2. Edit `server/seed.js` with real project data (see "Project Data Format" below).
 3. Run:
 
 ```bash
@@ -214,7 +254,7 @@ How the UI behaves:
 | `isPrivate: false` | No badge | No note |
 | `githubLink` set | GitHub button | GitHub button |
 | `liveLink` set | Live Demo link | Live Demo button |
-| `images` present | First image as thumbnail | Screenshot slider with arrows and dots |
+| `images` present | First image as 16:10 thumbnail | Screenshot slider with arrows and dots |
 
 ---
 
@@ -227,7 +267,7 @@ How the UI behaves:
 | `EMAIL_USER` | `server/.env` | For email (local) | Gmail address used to send and receive notifications |
 | `EMAIL_PASS` | `server/.env` | For email (local) | Gmail App Password (16 characters, no spaces) |
 | `EMAIL_TO` | `server/.env` | No | Optional recipient override (needs a matching `to:` change in `index.js`) |
-| `RESEND_API_KEY` | `server/.env` | For email (production) | Only if switching to Resend for hosting on Render free plan |
+| `RESEND_API_KEY` | `server/.env` | For email (production) | Only if switching to Resend for hosting on the Render free plan |
 | `VITE_API_URL` | `client/.env` or Vercel settings | In production | Deployed backend URL, e.g. `https://my-api.onrender.com` (no trailing slash). Defaults to `http://localhost:5000` |
 
 ---
@@ -277,29 +317,53 @@ Behavior of `POST /api/contact`: saves to the `contacts` collection, then tries 
 | What to change | File | What to edit |
 |---|---|---|
 | GitHub / LinkedIn / email links | `client/src/data/socials.js` | `socials` object |
-| Name, typing roles, stat numbers | `client/src/components/Hero.jsx` | `roles` array, `<Counter target={...} />` |
-| Home photo | `client/src/components/Hero.jsx` | `HOME_PHOTO` constant (file in `client/public/`) |
-| About photo and bio | `client/src/components/About.jsx` | `<img src="/profile.jpg">` and text |
+| Typing roles, stat numbers | `client/src/components/Hero.jsx` | `roles` array, `<Counter target={...} />` |
+| Photo inside the 3D portal | `client/public/home-photo-3d.jpg` | Replace with a **square** image (about 640x640, face centred, under 100 KB). If the file name changes, update `PHOTO_URL` in `components/three/Portal.jsx` |
+| Hero photo for the 2D fallback | `client/public/home-photo.jpg` | Replace the file |
+| About photo and bio | `client/src/components/About.jsx` | `<img src="/profile.jpeg">` and text |
+| Technologies on the 3D orbit | `client/src/components/three/orbitTech.js` | `ORBIT_TECH` array (name, icon, colour) |
 | Skill levels | `client/src/components/Skills.jsx` | `categories` array |
 | Education entries | `client/src/components/Education.jsx` | `education` array |
 | Projects and screenshots | `server/seed.js` and `client/public/projects/` | edit the `projects` array, then run `node seed.js` |
-| Colors, fonts, spacing | `client/src/index.css` | CSS rules (accent `#00f5a0` and `#00d9f5`, background `#0a0e0d`) |
+| Site colours | `client/src/index.css` | CSS variables in the `:root` block at the top |
+| 3D colours and layout | `client/src/components/three/*.jsx` | colour strings and positions (scene is in world units) |
+| Glass, tilt, popup, responsive styles | `client/src/premium.css` | the matching section |
 | Resume | `client/public/resume.pdf` | replace the file |
-| Page title | `client/index.html` | `<title>` |
+| Page title and favicon | `client/index.html` | `<title>` and the icon link |
 
 ---
 
 ## Design Tokens
 
+Defined as CSS variables at the top of `client/src/index.css`.
+
 | Token | Value |
 |---|---|
-| Background | `#0a0e0d` |
-| Primary accent (green) | `#00f5a0` / `#2ee6a8` |
-| Secondary accent (cyan) | `#00d9f5` / `#1cc8ff` |
-| Card background | `rgba(17, 17, 17, 0.8)` |
+| `--bg` (background) | `#04070f` |
+| `--surface` | `#0a1020` |
+| `--cyan` (primary accent) | `#22e5ff` |
+| `--blue` / `--blue-soft` | `#3b82f6` / `#7aa7ff` |
+| `--purple` | `#8b5cf6` |
+| `--green` (status and success only) | `#19f5a8` |
+| `--text` / `--text-dim` | `#e8eefc` / `#9aa8c7` |
+| `--grad` | cyan to blue to purple, 90deg |
+| `--line` / `--line-strong` / `--hairline` | translucent blue borders |
 | Heading font | Syne (700, 800) |
 | Body font | Space Mono (400, 700) |
 | Breakpoints | `max-width: 1000px` (tablet), `800px` (mobile), `400px` (small phones) |
+
+---
+
+## How the 3D Works
+
+- **Hero stage:** `Hero3D.jsx` mounts a React Three Fiber canvas (`three/Scene3D.jsx`) behind the hero text. On wide screens the portal sits to the right of the headline; on phones the stage sits above the text.
+- **Lazy loading:** the whole three.js bundle is a separate chunk, imported with `React.lazy`, so it does not load with the main bundle.
+- **Fallback:** the original 2D photo with CSS rings is rendered under the canvas. It stays visible if WebGL is missing, the scene throws (`SceneBoundary`), or the portal texture is still loading. Text, buttons and sections never depend on WebGL.
+- **Photo texture:** the portal uses `home-photo-3d.jpg`, a square crop, so it maps cleanly onto the circular disc.
+- **Technology chips:** the React / Node.js / Express.js / MongoDB panels are plain DOM elements rendered by `Hero3D.jsx` inside `.tech-layer`. `TechOrbit.jsx` projects each orbit anchor to screen space every frame and writes the CSS transform directly onto the chip (no React re-render, no drei `<Html>`). They are decorative (`aria-hidden`); the same technologies are real text in About and Skills.
+- **Animation split:** GSAP is used only in `Hero.jsx` (entrance timeline, scroll-linked fade) and `ScrollProgress.jsx`. All other UI animation uses Framer Motion, so the two never animate the same element.
+- **Performance:** rendering pauses when the hero is off-screen (`useInView`), fewer stars and crystals on phones, a lower pixel ratio, `PerformanceMonitor` lowers resolution on slow GPUs, generated textures and geometries are disposed on unmount, and the About 3D object is skipped on phones.
+- **Accessibility:** decorative 3D is `aria-hidden`; headline and role text are real text; `prefers-reduced-motion` stops idle motion, typing, GSAP and tilt; the project popup is a labelled dialog.
 
 ---
 
@@ -307,14 +371,16 @@ Behavior of `POST /api/contact`: saves to the `contacts` collection, then tries 
 
 1. **Single page, no router.** Sections have ids: `home`, `about`, `skills`, `projects`, `education`, `contact`. The navbar uses `<a href="#id">` links and an `IntersectionObserver` for the active-link highlight. Do not add React Router unless converting to a multi-page site.
 2. **Keep each section's `id`** (for example `<section id="about" className="section">`), because the Navbar observes them. `Hero` uses `id="home"`.
-3. **All styling lives in `client/src/index.css`.** No CSS modules, no Tailwind. Class names are global.
-4. **`Reveal.jsx`** wraps sections in `App.jsx` for scroll-in animation. `Hero` is not wrapped (it has its own entry animation).
-5. **Photos:** Hero uses `/home-photo.jpg`, About uses `/profile.jpg`. Both are served from `client/public/`. Paths start with `/`.
-6. **Project popup** lives inside `Projects.jsx` (state: `selected`, `imgIndex`). It locks body scroll while open and closes on Escape.
-7. **API base URL** is read from `import.meta.env.VITE_API_URL` with a fallback to `http://localhost:5000`. Used in `Projects.jsx` and `Contact.jsx`.
-8. **Backend is CommonJS** (`require`), frontend is ESM (`import`). Do not mix them.
-9. **DNS workaround:** `server/index.js` and `seed.js` start with `dns.setServers(['8.8.8.8', '8.8.4.4'])` to avoid `querySrv ECONNREFUSED` errors with `mongodb+srv://` URIs on some networks. Keep it unless the network is known to be fine.
-10. **Performance:** `ParticleBackground.jsx` lowers the particle count on mobile and stops when the tab is hidden. Keep photos compressed (WebP recommended, under 150 KB each).
+3. **Styles:** `index.css` holds the base rules and colour tokens, `premium.css` (imported after it in `main.jsx`) holds the 3D and glass layer. No CSS modules, no Tailwind. Class names are global.
+4. **Do not use drei `<Html>` for the tech chips.** The first `<Html>` rendered empty (the React panel was missing). The chips are DOM elements moved by `TechOrbit.jsx`; keep them that way.
+5. **`.hero-stage`, `.stage-canvas-wrap`, `.tech-layer` and `.stage-fallback`** are used by both CSS and GSAP selectors in `Hero.jsx`. Renaming them breaks the scroll fade and layout.
+6. **`Reveal.jsx`** wraps sections in `App.jsx` for scroll-in animation. `Hero` is not wrapped (it has its own GSAP entrance).
+7. **Photos:** the 3D portal uses `/home-photo-3d.jpg`, the 2D fallback uses `/home-photo.jpg`, About uses `/profile.jpeg`. All are served from `client/public/`. Paths start with `/`.
+8. **Project popup** lives inside `Projects.jsx` (state: `selected`, `imgIndex`). It locks body scroll while open, closes on Escape, and returns focus to the card button.
+9. **API base URL** is read from `import.meta.env.VITE_API_URL` with a fallback to `http://localhost:5000`. Used in `Projects.jsx` and `Contact.jsx`.
+10. **Backend is CommonJS** (`require`), frontend is ESM (`import`). Do not mix them.
+11. **DNS workaround:** `server/index.js` and `seed.js` start with `dns.setServers(['8.8.8.8', '8.8.4.4'])` to avoid `querySrv ECONNREFUSED` errors with `mongodb+srv://` URIs on some networks. Keep it unless the network is known to be fine.
+12. **Performance:** keep photos and screenshots compressed (WebP recommended, under 150 KB each). `ParticleBackground.jsx` lowers its particle count on mobile and stops when the tab is hidden.
 
 ---
 
@@ -356,8 +422,14 @@ Optional hardening after deployment: restrict CORS in `server/index.js` to the V
 | `SyntaxError: Invalid or unexpected token` in `seed.js` | A quoted string is split across multiple lines | Keep each quoted string on one line |
 | Popup shows no features, images, or Private badge | `Project.js` schema missing the new fields, or `seed.js` not re-run | Add `features`, `images`, `isPrivate` to the schema, then run `node seed.js` |
 | Project screenshot not showing | Wrong file name or folder | Files go in `client/public/projects/`; paths in `seed.js` start with `/projects/` and must match exactly. Test with `http://localhost:5173/projects/<file>` |
+| 2D photo shows instead of the 3D portal | WebGL unavailable, or `home-photo-3d.jpg` is missing | Check that `client/public/home-photo-3d.jpg` exists (square image) and that the browser console shows no `[3D]` warning |
+| Portal photo looks stretched | `home-photo-3d.jpg` is not square | Crop it to 1:1 (for example 640x640) |
+| A technology chip is missing | Its entry is missing in `orbitTech.js`, or chips were changed back to drei `<Html>` | Keep four entries in `ORBIT_TECH` and the DOM-chip approach in `TechOrbit.jsx` |
+| Portal photo does not change after replacing the file | Browser cache | Hard refresh (`Ctrl + Shift + R`) |
+| `Failed to resolve import "three"` or similar | New dependencies not installed | `cd client` then `npm install` |
+| Heading uses a plain font | Google Fonts blocked or offline | Check the internet connection; the site still works with fallback fonts |
 | Photo not showing (alt text visible) | File missing in `client/public/` or wrong name/extension | Check the exact filename, enable "File name extensions" in Windows Explorer |
-| Page looks unstyled / white | `index.css` missing content or Vite default CSS present | Replace `index.css`, delete `App.css` |
+| Page looks unstyled / white | `index.css` or `premium.css` missing or not imported | Both must be imported in `main.jsx` (`index.css` first), and delete `App.css` |
 | Email not received locally | Wrong App Password or 2-Step Verification off | Regenerate the App Password, check the Spam folder, read the `Email nahi gaya:` log in the backend terminal |
 | Email works locally but not after deploying to Render | Free plan blocks SMTP ports | Use an HTTPS email API such as Resend |
 | `.env` changes not applied | Server not restarted | Stop and rerun `npm run dev` |
@@ -374,11 +446,12 @@ Optional hardening after deployment: restrict CORS in `server/index.js` to the V
 }
 ```
 
-**client/package.json** (Vite defaults)
+**client/package.json** (Vite)
 ```
 npm run dev       # development server
 npm run build     # production build -> client/dist
 npm run preview   # preview the production build
+npm run lint      # oxlint
 ```
 
 ---
@@ -386,12 +459,12 @@ npm run preview   # preview the production build
 ## Security Checklist
 
 - Never commit `.env`. Use this `.gitignore` (root and/or `server/`):
-  ```
+```
   node_modules
   .env
   .env.local
   dist
-  ```
+```
 - `server/.env.example` is safe to commit as long as it only contains placeholders.
 - Never share the Atlas password or Gmail App Password publicly.
 - If a secret was ever pushed to GitHub, rotate it immediately (new Atlas password, new Gmail App Password). Deleting the file is not enough because Git history keeps it.
@@ -412,9 +485,8 @@ git push
 
 - Admin panel with JWT login to add, edit, and delete projects from the website
 - Contact messages dashboard
-- Dark/light theme toggle, scroll progress bar, back-to-top button
 - Certifications and experience sections
-- SEO meta tags and social preview image, favicon
+- Social preview image and `og:url` after deployment
 - Rate limiting and spam protection (honeypot field) on `/api/contact`
 
 ---
