@@ -22,7 +22,7 @@ function Contact() {
       await axios.post(`${API}/api/contact`, form);
       setStatus("Message sent successfully! ✅");
       setForm({ name: "", email: "", message: "" });
-    } catch (err) {
+    } catch {
       setStatus("Something went wrong. Try again ❌");
     } finally {
       setSending(false);
