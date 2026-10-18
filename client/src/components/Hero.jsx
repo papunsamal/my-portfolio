@@ -176,7 +176,7 @@ function Hero() {
         <div className="hero-stats">
           <div>
             <h2>
-              <Counter target={10} />
+              <Counter target={1} />
             </h2>
             <p>PROJECTS BUILT</p>
           </div>
@@ -188,7 +188,7 @@ function Hero() {
           </div>
           <div>
             <h2>
-              <Counter target={500} />
+              <Counter target={50} />
             </h2>
             <p>DSA PROBLEMS</p>
           </div>

@@ -48,7 +48,7 @@ function Contact() {
         Let's work <span className="highlight">together</span>
       </h2>
 
-      <p className="muted">Ya mujhe yahan connect karo:</p>
+      <p className="muted">Or connect me here:</p>
       <SocialLinks />
       <br />
 
